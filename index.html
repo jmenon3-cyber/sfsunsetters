@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SF Sunsetters">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%231a1a2e'/%3E%3Cstop offset='40%25' stop-color='%234a1942'/%3E%3Cstop offset='70%25' stop-color='%23c44b1a'/%3E%3Cstop offset='100%25' stop-color='%23d4891a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='96' fill='url(%23sky)'/%3E%3Ccircle cx='256' cy='300' r='80' fill='%23e8580c' opacity='0.9'/%3E%3Crect x='0' y='320' width='512' height='192' rx='0' fill='%231a1a2e' opacity='0.85'/%3E%3Cpath d='M0 320 Q128 280 256 320 Q384 360 512 320 L512 420 Q384 380 256 420 Q128 460 0 420Z' fill='%230c1220' opacity='0.5'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>SF Sunsetters </title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-card: #1e2a4a;
+      --bg-card-hover: #253560;
+      --text-primary: #f0e6d3;
+      --text-secondary: #b8a990;
+      --text-dim: #7a7060;
+      --border: #2a3a5e;
+      --spectacular: #C42828;
+      --beautiful: #E8580C;
+      --decent: #D4891A;
+      --muted: #A07828;
+      --skipit: #555E3B;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 30%, #4a1942 50%, #8b2f2f 70%, #c44b1a 85%, #d4891a 100%);
+      padding: 24px 16px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .header p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== DAY SWITCHER ===== */
+    .day-switcher {
+      display: flex;
+      gap: 8px;
+      padding: 16px;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .day-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .day-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+    .day-btn.active {
+      background: linear-gradient(135deg, #c44b1a, #E8580C);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 12px rgba(232,88,12,0.3);
+    }
+
+    /* ===== MAP CONTAINER ===== */
+    .map-section {
+      padding: 16px;
+      position: relative;
+    }
+    .map-container {
+      position: relative;
+      max-width: 540px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0f1528;
+      border: 1px solid var(--border);
+    }
+    .map-container svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .neighborhood-poly {
+      stroke: #0a0f1e;
+      stroke-width: 2;
+      cursor: pointer;
+      transition: opacity 0.15s ease, stroke-width 0.15s ease;
+    }
+    .neighborhood-poly:hover {
+      opacity: 0.85;
+      stroke-width: 3;
+      stroke: #fff;
+    }
+    .neighborhood-poly.selected {
+      stroke-width: 3;
+      stroke: #fff;
+    }
+    .map-label {
+      pointer-events: none;
+      user-select: none;
+    }
+    .map-label-name {
+      fill: rgba(255,255,255,0.9);
+      font-size: 11px;
+      font-weight: 600;
+      text-anchor: middle;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    .map-label-score {
+      fill: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      text-anchor: middle;
+    }
+    .park-label {
+      fill: rgba(100,180,100,0.6);
+      font-size: 10px;
+      font-weight: 600;
+      text-anchor: middle;
+      letter-spacing: 3px;
+      pointer-events: none;
+    }
+    .park-strip {
+      fill: rgba(60,120,60,0.25);
+      pointer-events: none;
+    }
+    .water-fill { fill: #0c1220; }
+    .bridge-line {
+      stroke: #c44b1a;
+      stroke-width: 2.5;
+      stroke-dasharray: 6 3;
+      opacity: 0.6;
+    }
+
+    /* ===== TOOLTIP ===== */
+    .tooltip {
+      position: fixed;
+      z-index: 1000;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      min-width: 200px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .tooltip-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .tooltip-rating {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .tooltip-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+    }
+    .tooltip-detail {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .tooltip-detail-label { color: var(--text-secondary); }
+    .tooltip-detail-value { font-weight: 600; }
+    .tooltip-score {
+      font-size: 28px;
+      font-weight: 800;
+      float: right;
+      line-height: 1;
+      margin-top: -2px;
+    }
+
+    /* ===== LEGEND ===== */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 16px 0;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* ===== RANKED LIST ===== */
+    .ranked-section {
+      padding: 20px 16px 32px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .ranked-header {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+    .ranked-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .ranked-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ranked-card:hover {
+      background: var(--bg-card-hover);
+      border-color: #3a4a6e;
+    }
+    .ranked-rank {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-right: 8px;
+      min-width: 18px;
+    }
+    .ranked-info { flex: 1; min-width: 0; }
+    .ranked-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ranked-rating {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .ranked-score {
+      font-size: 22px;
+      font-weight: 800;
+      margin-left: 8px;
+    }
+    .ranked-emoji {
+      font-size: 16px;
+      margin-left: 4px;
+    }
+
+    /* ===== LOADING ===== */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,21,40,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--beautiful);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .error-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,21,40,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      z-index: 100;
+      padding: 24px;
+      text-align: center;
+    }
+    .error-overlay.hidden { display: none; }
+    .error-icon { font-size: 32px; margin-bottom: 12px; }
+    .error-msg { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+    .retry-btn {
+      margin-top: 16px;
+      padding: 10px 24px;
+      background: var(--beautiful);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--text-secondary); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 400px) {
+      .header h1 { font-size: 22px; }
+      .day-btn { padding: 8px 14px; font-size: 13px; }
+      .ranked-grid { gap: 8px; }
+      .ranked-card { padding: 10px 12px; }
+      .ranked-score { font-size: 18px; }
+      .map-label-name { font-size: 9px; }
+      .map-label-score { font-size: 13px; }
+    }
+    @media (min-width: 768px) {
+      .header h1 { font-size: 34px; }
+      .map-section { padding: 24px; }
+      .ranked-section { max-width: 600px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>SF Sunsetters</h1>
+    <p>Neighborhood sunset quality for San Francisco</p>
+  </header>
+
+  <nav class="day-switcher">
+    <button class="day-btn active" data-day="0">Tonight</button>
+    <button class="day-btn" data-day="1">Tomorrow</button>
+    <button class="day-btn" data-day="2">In 2 Days</button>
+  </nav>
+
+  <section class="map-section">
+    <div class="map-container" id="mapContainer">
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Fetching sunset data&hellip;</div>
+      </div>
+      <div class="error-overlay hidden" id="errorOverlay">
+        <div class="error-icon">&#9729;</div>
+        <div class="error-msg" id="errorMsg">Could not load weather data. Check your connection and try again.</div>
+        <button class="retry-btn" onclick="init()">Retry</button>
+      </div>
+      <!-- SVG is injected by JavaScript -->
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="ranked-section">
+    <h2 class="ranked-header" id="rankedHeader">Top Sunsets Tonight</h2>
+    <div class="ranked-grid" id="rankedGrid"></div>
+  </section>
+
+  <footer class="footer">
+    Weather data from <a href="https://wttr.in/" target="_blank" rel="noopener">wttr.in</a> &middot;
+    Forecasts update hourly
+  </footer>
+
+  <div class="tooltip" id="tooltip"></div>
+
+<script>
+// ==========================================
+// CONFIG
+// ==========================================
+
+const NEIGHBORHOODS = {
+  presidio:       { name: "Presidio",        short: "Presidio",  lat: 37.7989, lon: -122.4662, polygon: "40,100 200,55 280,48 280,170 40,170" },
+  marina:         { name: "Marina",          short: "Marina",    lat: 37.8030, lon: -122.4363, polygon: "280,48 420,42 420,170 280,170" },
+  northBeach:     { name: "North Beach",     short: "N. Beach",  lat: 37.8061, lon: -122.4103, polygon: "420,42 450,46 480,62 515,100 535,160 535,170 420,170" },
+  outerRichmond:  { name: "Outer Richmond",  short: "O. Rich",   lat: 37.7780, lon: -122.4883, polygon: "0,170 170,170 170,283 0,283" },
+  innerRichmond:  { name: "Inner Richmond",  short: "I. Rich",   lat: 37.7799, lon: -122.4571, polygon: "170,170 310,170 310,283 170,283" },
+  nobHill:        { name: "Nob Hill",        short: "Nob Hill",  lat: 37.7930, lon: -122.4161, polygon: "310,170 420,170 420,283 310,283" },
+  tenderloin:     { name: "Tenderloin",      short: "TL",        lat: 37.7835, lon: -122.4147, polygon: "420,170 535,170 540,283 420,283" },
+  outerSunset:    { name: "Outer Sunset",    short: "O. Sunset", lat: 37.7502, lon: -122.5076, polygon: "0,297 170,297 170,615 0,615" },
+  haight:         { name: "Haight",          short: "Haight",    lat: 37.7692, lon: -122.4481, polygon: "170,297 310,297 310,375 170,375" },
+  hayesValley:    { name: "Hayes Valley",    short: "Hayes V.",  lat: 37.7759, lon: -122.4245, polygon: "310,297 440,297 440,375 310,375" },
+  soma:           { name: "SoMa",            short: "SoMa",      lat: 37.7785, lon: -122.3948, polygon: "440,283 540,283 550,375 440,375" },
+  twinPeaks:      { name: "Twin Peaks",      short: "Twin Pks",  lat: 37.7544, lon: -122.4477, polygon: "170,375 310,375 310,500 170,500" },
+  castro:         { name: "Castro",          short: "Castro",    lat: 37.7609, lon: -122.4350, polygon: "310,375 400,375 400,500 310,500" },
+  mission:        { name: "Mission",         short: "Mission",   lat: 37.7599, lon: -122.4148, polygon: "400,375 490,375 490,500 400,500" },
+  potreroHill:    { name: "Potrero Hill",    short: "Potrero",   lat: 37.7601, lon: -122.4013, polygon: "490,375 550,375 560,500 490,500" },
+  noeValley:      { name: "Noe Valley",      short: "Noe V.",    lat: 37.7502, lon: -122.4338, polygon: "170,500 400,500 400,615 170,615" },
+  bayview:        { name: "Bayview",         short: "Bayview",   lat: 37.7309, lon: -122.3892, polygon: "400,500 560,500 565,635 540,670 500,700 460,718 400,615" },
+  excelsior:      { name: "Excelsior",       short: "Excelsior", lat: 37.7240, lon: -122.4245, polygon: "0,615 400,615 460,718 370,738 300,738 220,728 150,718 90,702 50,668 25,635 0,615" }
+};
+
+const RATINGS = [
+  { min: 80, max: 100, label: "Spectacular", emoji: "\uD83D\uDD25", color: "#C42828" },
+  { min: 60, max: 79,  label: "Beautiful",   emoji: "\uD83C\uDF05", color: "#E8580C" },
+  { min: 40, max: 59,  label: "Decent",      emoji: "\uD83C\uDF24\uFE0F", color: "#D4891A" },
+  { min: 20, max: 39,  label: "Muted",       emoji: "\uD83D\uDE10", color: "#A07828" },
+  { min: 0,  max: 19,  label: "Skip it",     emoji: "\u2601\uFE0F",  color: "#555E3B" }
+];
+
+const DAY_LABELS = ["Tonight", "Tomorrow", "In 2 Days"];
+
+// Peninsula outline clip path
+const SF_OUTLINE = "M40,95 Q70,45 200,48 L280,40 L350,38 L420,38 Q455,40 480,58 Q512,88 535,155 L538,185 L540,240 L542,265 L544,283 L548,330 L552,375 L556,420 L560,470 L562,510 L565,560 L566,610 L565,640 Q560,670 540,698 Q520,720 495,732 L450,740 Q380,745 300,742 L230,735 L165,722 Q115,710 80,690 Q48,665 30,630 Q15,580 8,520 L6,450 L6,380 L8,320 L10,290 Q15,235 30,190 Q38,155 40,95 Z";
+
+// ==========================================
+// STATE
+// ==========================================
+
+let weatherCache = {};  // { neighborhoodId: { days: [ {score, rating, raw}, ... ] } }
+let currentDay = 0;
+let selectedNeighborhood = null;
+
+// ==========================================
+// SCORING
+// ==========================================
+
+function getSunsetHour() {
+  const month = new Date().getMonth() + 1;
+  if (month >= 11 || month <= 2) return 17; // Winter
+  if (month >= 3 && month <= 5) return 19;  // Spring
+  if (month >= 6 && month <= 8) return 20;  // Summer
+  return 18; // Fall
+}
+
+function calculateScore(raw) {
+  // Cloud cover (max 35 pts) — sweet spot around 40-50%, tails off smoothly
+  const cc = raw.cloud_cover;
+  const ccIdeal = 45;
+  const ccScore = 35 * Math.max(0, 1 - Math.pow((cc - ccIdeal) / 50, 2));
+
+  // Cloud altitude (max 25 pts) — high clouds are best, low clouds worst
+  const highBonus = Math.min(25, raw.cloud_cover_high * 0.8);
+  const lowPenalty = Math.min(15, raw.cloud_cover_low * 0.3);
+  const altScore = Math.max(0, highBonus - lowPenalty + raw.cloud_cover_mid * 0.15);
+
+  // Visibility (max 20 pts) — peaks at 10-15km, drops for very low or very high
+  const visKm = raw.visibility / 1000;
+  const visScore = 20 * Math.max(0, 1 - Math.pow((visKm - 12) / 15, 2));
+
+  // Humidity (max 10 pts) — ideal around 50-60%
+  const hum = raw.relative_humidity_2m;
+  const humScore = 10 * Math.max(0, 1 - Math.pow((hum - 55) / 45, 2));
+
+  // Horizon view bonus (max 10 pts) — from geographic factors
+  const horizonScore = (raw.horizon_view || 0) * 10;
+
+  const total = ccScore + Math.min(25, altScore) + visScore + humScore + horizonScore;
+  return Math.round(Math.min(100, Math.max(0, total)));
+}
+
+function getRating(score) {
+  return RATINGS.find(r => score >= r.min && score <= r.max) || RATINGS[RATINGS.length - 1];
+}
+
+// ==========================================
+// API
+// ==========================================
+
+// horizonView: how much unobstructed western sky (0-1) — the biggest differentiator
+// fogExposure: proximity to marine layer (0-1)
+// elevation: height advantage for seeing above fog (0-1)
+const GEO_FACTORS = {
+  presidio:       { fogExposure: 0.7,  elevation: 0.6,  horizonView: 0.95 },
+  marina:         { fogExposure: 0.5,  elevation: 0.15, horizonView: 0.80 },
+  northBeach:     { fogExposure: 0.15, elevation: 0.35, horizonView: 0.30 },
+  outerRichmond:  { fogExposure: 0.85, elevation: 0.25, horizonView: 0.90 },
+  innerRichmond:  { fogExposure: 0.55, elevation: 0.30, horizonView: 0.70 },
+  nobHill:        { fogExposure: 0.15, elevation: 0.75, horizonView: 0.55 },
+  tenderloin:     { fogExposure: 0.05, elevation: 0.05, horizonView: 0.10 },
+  outerSunset:    { fogExposure: 1.0,  elevation: 0.15, horizonView: 1.00 },
+  haight:         { fogExposure: 0.35, elevation: 0.50, horizonView: 0.45 },
+  hayesValley:    { fogExposure: 0.15, elevation: 0.25, horizonView: 0.25 },
+  soma:           { fogExposure: 0.05, elevation: 0.05, horizonView: 0.15 },
+  twinPeaks:      { fogExposure: 0.45, elevation: 1.0,  horizonView: 0.95 },
+  castro:         { fogExposure: 0.25, elevation: 0.55, horizonView: 0.50 },
+  mission:        { fogExposure: 0.05, elevation: 0.20, horizonView: 0.20 },
+  potreroHill:    { fogExposure: 0.05, elevation: 0.70, horizonView: 0.65 },
+  noeValley:      { fogExposure: 0.15, elevation: 0.35, horizonView: 0.35 },
+  bayview:        { fogExposure: 0.05, elevation: 0.20, horizonView: 0.25 },
+  excelsior:      { fogExposure: 0.15, elevation: 0.25, horizonView: 0.30 }
+};
+
+async function fetchCityWeather() {
+  const resp = await fetch("https://wttr.in/SanFrancisco?format=j1");
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return await resp.json();
+}
+
+function extractDayData(apiData) {
+  const weatherDays = apiData.weather || [];
+  const sunsetHour = getSunsetHour();
+  // wttr.in uses times like 0, 300, 600, 900, 1200, 1500, 1800, 2100
+  // Map sunset hour to nearest wttr.in time slot
+  const targetTime = String(Math.round(sunsetHour / 3) * 300);
+
+  const days = [];
+  for (const day of weatherDays) {
+    const hourly = day.hourly || [];
+    // Find the time slot closest to sunset
+    const entry = hourly.find(h => h.time === targetTime) || hourly[hourly.length - 1];
+    if (entry) {
+      days.push({
+        cloud_cover: parseInt(entry.cloudcover, 10) || 0,
+        cloud_cover_low: Math.max(0, (parseInt(entry.cloudcover, 10) || 0) - 20),
+        cloud_cover_mid: Math.min(100, Math.round((parseInt(entry.cloudcover, 10) || 0) * 0.5)),
+        cloud_cover_high: Math.min(100, Math.round((parseInt(entry.cloudcover, 10) || 0) * 0.6)),
+        visibility: (parseInt(entry.visibility, 10) || 10) * 1000,
+        relative_humidity_2m: parseInt(entry.humidity, 10) || 50,
+        date: day.date || "N/A"
+      });
+    }
+    if (days.length === 3) break;
+  }
+
+  while (days.length < 3) {
+    days.push({ cloud_cover: 50, cloud_cover_low: 10, cloud_cover_mid: 15, cloud_cover_high: 25, visibility: 15000, relative_humidity_2m: 55, date: "N/A" });
+  }
+
+  return days;
+}
+
+function adjustRawForNeighborhood(baseRaw, id) {
+  const geo = GEO_FACTORS[id] || { fogExposure: 0.3, elevation: 0.3, horizonView: 0.4 };
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  const fogEffect = geo.fogExposure * 25;
+  const elevEffect = geo.elevation * 18;
+
+  return {
+    cloud_cover: clamp(Math.round(baseRaw.cloud_cover + fogEffect - elevEffect * 0.5), 0, 100),
+    cloud_cover_low: clamp(Math.round(baseRaw.cloud_cover_low + fogEffect * 2 - elevEffect), 0, 100),
+    cloud_cover_mid: clamp(Math.round(baseRaw.cloud_cover_mid + fogEffect * 0.3), 0, 100),
+    cloud_cover_high: baseRaw.cloud_cover_high,
+    visibility: clamp(Math.round(baseRaw.visibility * (1 - geo.fogExposure * 0.4 + geo.elevation * 0.25)), 1000, 100000),
+    relative_humidity_2m: clamp(Math.round(baseRaw.relative_humidity_2m + fogEffect - elevEffect * 0.4), 0, 100),
+    horizon_view: geo.horizonView,
+    date: baseRaw.date
+  };
+}
+
+async function fetchAllData() {
+  try {
+    const apiData = await fetchCityWeather();
+    const baseDays = extractDayData(apiData);
+
+    for (const id of Object.keys(NEIGHBORHOODS)) {
+      const days = baseDays.map(baseRaw => {
+        const raw = adjustRawForNeighborhood(baseRaw, id);
+        const score = calculateScore(raw);
+        return { score, rating: getRating(score), raw };
+      });
+      weatherCache[id] = { days };
+    }
+
+    return { total: Object.keys(NEIGHBORHOODS).length, failed: 0 };
+  } catch (err) {
+    console.error("Weather fetch failed:", err);
+    for (const id of Object.keys(NEIGHBORHOODS)) {
+      weatherCache[id] = {
+        days: [0, 1, 2].map(() => ({
+          score: 45,
+          rating: getRating(45),
+          raw: { cloud_cover: 50, cloud_cover_low: 10, cloud_cover_mid: 15, cloud_cover_high: 25, visibility: 15000, relative_humidity_2m: 55, date: "N/A" }
+        }))
+      };
+    }
+    return { total: Object.keys(NEIGHBORHOODS).length, failed: Object.keys(NEIGHBORHOODS).length };
+  }
+}
+
+// ==========================================
+// SVG MAP
+// ==========================================
+
+function getPolygonCentroid(pointsStr) {
+  const pts = pointsStr.trim().split(/\s+/).map(p => {
+    const [x, y] = p.split(",").map(Number);
+    return { x, y };
+  });
+  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+  const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+  return { x: cx, y: cy };
+}
+
+function buildSVG() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 30 580 730");
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+  // Defs: clip path + drop shadow
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+  const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+  clipPath.id = "sf-outline";
+  const clipPathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  clipPathEl.setAttribute("d", SF_OUTLINE);
+  clipPath.appendChild(clipPathEl);
+  defs.appendChild(clipPath);
+
+  // Text shadow filter
+  const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+  filter.id = "text-shadow";
+  filter.setAttribute("x", "-20%");
+  filter.setAttribute("y", "-20%");
+  filter.setAttribute("width", "140%");
+  filter.setAttribute("height", "140%");
+  const feFlood = document.createElementNS("http://www.w3.org/2000/svg", "feFlood");
+  feFlood.setAttribute("flood-color", "rgba(0,0,0,0.7)");
+  feFlood.setAttribute("result", "flood");
+  filter.appendChild(feFlood);
+  const feComposite = document.createElementNS("http://www.w3.org/2000/svg", "feComposite");
+  feComposite.setAttribute("in", "flood");
+  feComposite.setAttribute("in2", "SourceGraphic");
+  feComposite.setAttribute("operator", "in");
+  feComposite.setAttribute("result", "shadow");
+  filter.appendChild(feComposite);
+  const feGaussian = document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
+  feGaussian.setAttribute("in", "shadow");
+  feGaussian.setAttribute("stdDeviation", "2");
+  feGaussian.setAttribute("result", "blurred");
+  filter.appendChild(feGaussian);
+  const feMerge = document.createElementNS("http://www.w3.org/2000/svg", "feMerge");
+  const feMergeNode1 = document.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
+  feMergeNode1.setAttribute("in", "blurred");
+  feMerge.appendChild(feMergeNode1);
+  const feMergeNode2 = document.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
+  feMergeNode2.setAttribute("in", "SourceGraphic");
+  feMerge.appendChild(feMergeNode2);
+  filter.appendChild(feMerge);
+  defs.appendChild(filter);
+
+  svg.appendChild(defs);
+
+  // Water background
+  const water = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  water.setAttribute("x", "0");
+  water.setAttribute("y", "30");
+  water.setAttribute("width", "580");
+  water.setAttribute("height", "730");
+  water.classList.add("water-fill");
+  svg.appendChild(water);
+
+  // Clipped group for neighborhoods
+  const clipGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  clipGroup.setAttribute("clip-path", "url(#sf-outline)");
+
+  // Draw neighborhoods
+  for (const [id, n] of Object.entries(NEIGHBORHOODS)) {
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", n.polygon);
+    poly.setAttribute("data-id", id);
+    poly.classList.add("neighborhood-poly");
+    poly.setAttribute("fill", "#555E3B"); // default
+    clipGroup.appendChild(poly);
+  }
+
+  svg.appendChild(clipGroup);
+
+  // Golden Gate Park strip
+  const ggp = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  ggp.setAttribute("x", "0");
+  ggp.setAttribute("y", "283");
+  ggp.setAttribute("width", "310");
+  ggp.setAttribute("height", "14");
+  ggp.classList.add("park-strip");
+  ggp.setAttribute("clip-path", "url(#sf-outline)");
+  svg.appendChild(ggp);
+
+  const ggpLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ggpLabel.setAttribute("x", "155");
+  ggpLabel.setAttribute("y", "294");
+  ggpLabel.classList.add("park-label");
+  ggpLabel.textContent = "GOLDEN GATE PARK";
+  svg.appendChild(ggpLabel);
+
+  // Golden Gate Bridge indicator
+  const bridge = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  bridge.setAttribute("x1", "35");
+  bridge.setAttribute("y1", "85");
+  bridge.setAttribute("x2", "80");
+  bridge.setAttribute("y2", "55");
+  bridge.classList.add("bridge-line");
+  svg.appendChild(bridge);
+
+  // Peninsula outline stroke
+  const outline = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  outline.setAttribute("d", SF_OUTLINE);
+  outline.setAttribute("fill", "none");
+  outline.setAttribute("stroke", "#2a3a5e");
+  outline.setAttribute("stroke-width", "2");
+  svg.appendChild(outline);
+
+  // Labels group (on top of everything)
+  const labelsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  labelsGroup.id = "labels-group";
+  labelsGroup.setAttribute("filter", "url(#text-shadow)");
+
+  for (const [id, n] of Object.entries(NEIGHBORHOODS)) {
+    const c = getPolygonCentroid(n.polygon);
+
+    // Adjust centroids for awkward shapes
+    const adjustments = {
+      excelsior: { x: 200, y: 670 },
+      bayview: { x: 490, y: 590 },
+      northBeach: { x: 478, y: 115 },
+      outerSunset: { x: 85, y: 440 }
+    };
+    if (adjustments[id]) {
+      c.x = adjustments[id].x;
+      c.y = adjustments[id].y;
+    }
+
+    const nameEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    nameEl.setAttribute("x", c.x);
+    nameEl.setAttribute("y", c.y - 8);
+    nameEl.classList.add("map-label", "map-label-name");
+    nameEl.textContent = n.short;
+
+    const scoreEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    scoreEl.setAttribute("x", c.x);
+    scoreEl.setAttribute("y", c.y + 12);
+    scoreEl.setAttribute("data-score-id", id);
+    scoreEl.classList.add("map-label", "map-label-score");
+    scoreEl.textContent = "--";
+
+    labelsGroup.appendChild(nameEl);
+    labelsGroup.appendChild(scoreEl);
+  }
+
+  svg.appendChild(labelsGroup);
+
+  return svg;
+}
+
+// ==========================================
+// RENDERING
+// ==========================================
+
+function updateMap() {
+  const polys = document.querySelectorAll(".neighborhood-poly");
+  for (const poly of polys) {
+    const id = poly.getAttribute("data-id");
+    const dayData = weatherCache[id]?.days[currentDay];
+    if (dayData) {
+      poly.setAttribute("fill", dayData.rating.color);
+    }
+  }
+
+  // Update score labels
+  for (const id of Object.keys(NEIGHBORHOODS)) {
+    const el = document.querySelector(`[data-score-id="${id}"]`);
+    if (el) {
+      const dayData = weatherCache[id]?.days[currentDay];
+      el.textContent = dayData ? dayData.score : "--";
+    }
+  }
+}
+
+function updateRankedList() {
+  const grid = document.getElementById("rankedGrid");
+  const header = document.getElementById("rankedHeader");
+
+  header.textContent = `Top Sunsets ${DAY_LABELS[currentDay]}`;
+
+  // Sort neighborhoods by score descending
+  const sorted = Object.keys(NEIGHBORHOODS)
+    .map(id => ({
+      id,
+      name: NEIGHBORHOODS[id].name,
+      ...(weatherCache[id]?.days[currentDay] || { score: 0, rating: getRating(0) })
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  grid.innerHTML = sorted.map((item, i) => `
+    <div class="ranked-card" data-id="${item.id}">
+      <span class="ranked-rank">${i + 1}</span>
+      <div class="ranked-info">
+        <div class="ranked-name">${item.name}</div>
+        <div class="ranked-rating" style="color:${item.rating.color}">${item.rating.label}</div>
+      </div>
+      <span class="ranked-score" style="color:${item.rating.color}">${item.score}</span>
+      <span class="ranked-emoji">${item.rating.emoji}</span>
+    </div>
+  `).join("");
+
+  // Add click handlers
+  grid.querySelectorAll(".ranked-card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      const id = card.getAttribute("data-id");
+      showTooltipForNeighborhood(id, card);
+    });
+  });
+}
+
+function buildLegend() {
+  const legend = document.getElementById("legend");
+  legend.innerHTML = RATINGS.map(r => `
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:${r.color}"></div>
+      <span>${r.label} ${r.emoji}</span>
+    </div>
+  `).join("");
+}
+
+// ==========================================
+// TOOLTIP
+// ==========================================
+
+function showTooltipForNeighborhood(id, anchorEl) {
+  const n = NEIGHBORHOODS[id];
+  const dayData = weatherCache[id]?.days[currentDay];
+  if (!n || !dayData) return;
+
+  selectedNeighborhood = id;
+
+  // Highlight polygon
+  document.querySelectorAll(".neighborhood-poly").forEach(p => p.classList.remove("selected"));
+  const poly = document.querySelector(`.neighborhood-poly[data-id="${id}"]`);
+  if (poly) poly.classList.add("selected");
+
+  const tooltip = document.getElementById("tooltip");
+  const raw = dayData.raw;
+  const visKm = (raw.visibility / 1000).toFixed(1);
+
+  tooltip.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="tooltip-name">${n.name}</div>
+        <div class="tooltip-rating" style="color:${dayData.rating.color}">${dayData.rating.label} ${dayData.rating.emoji}</div>
+      </div>
+      <div class="tooltip-score" style="color:${dayData.rating.color}">${dayData.score}</div>
+    </div>
+    <div class="tooltip-details">
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">Cloud cover</span>
+        <span class="tooltip-detail-value">${raw.cloud_cover}%</span>
+      </div>
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">High clouds</span>
+        <span class="tooltip-detail-value">${raw.cloud_cover_high}%</span>
+      </div>
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">Mid clouds</span>
+        <span class="tooltip-detail-value">${raw.cloud_cover_mid}%</span>
+      </div>
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">Low clouds</span>
+        <span class="tooltip-detail-value">${raw.cloud_cover_low}%</span>
+      </div>
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">Visibility</span>
+        <span class="tooltip-detail-value">${visKm} km</span>
+      </div>
+      <div class="tooltip-detail">
+        <span class="tooltip-detail-label">Humidity</span>
+        <span class="tooltip-detail-value">${raw.relative_humidity_2m}%</span>
+      </div>
+    </div>
+  `;
+
+  // Position tooltip
+  positionTooltip(anchorEl);
+  tooltip.classList.add("visible");
+}
+
+function positionTooltip(anchorEl) {
+  const tooltip = document.getElementById("tooltip");
+  const rect = anchorEl.getBoundingClientRect ? anchorEl.getBoundingClientRect() : null;
+
+  if (!rect) {
+    tooltip.style.left = "50%";
+    tooltip.style.top = "50%";
+    tooltip.style.transform = "translate(-50%, -50%)";
+    return;
+  }
+
+  const tooltipWidth = 220;
+  const tooltipHeight = 180;
+  const pad = 12;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+  let top = rect.top - tooltipHeight - pad;
+
+  // If tooltip goes above viewport, show below
+  if (top < pad) {
+    top = rect.bottom + pad;
+  }
+
+  // Clamp horizontal
+  if (left < pad) left = pad;
+  if (left + tooltipWidth > vw - pad) left = vw - tooltipWidth - pad;
+
+  // Clamp vertical
+  if (top + tooltipHeight > vh - pad) {
+    top = rect.top - tooltipHeight - pad;
+    if (top < pad) top = pad;
+  }
+
+  tooltip.style.left = left + "px";
+  tooltip.style.top = top + "px";
+  tooltip.style.transform = "none";
+}
+
+function hideTooltip() {
+  const tooltip = document.getElementById("tooltip");
+  tooltip.classList.remove("visible");
+  document.querySelectorAll(".neighborhood-poly").forEach(p => p.classList.remove("selected"));
+  selectedNeighborhood = null;
+}
+
+// ==========================================
+// EVENT HANDLERS
+// ==========================================
+
+function setupEvents() {
+  // Day switcher
+  document.querySelectorAll(".day-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const day = parseInt(btn.getAttribute("data-day"), 10);
+      currentDay = day;
+      document.querySelectorAll(".day-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      hideTooltip();
+      updateMap();
+      updateRankedList();
+    });
+  });
+
+  // Map interactions
+  const mapContainer = document.getElementById("mapContainer");
+
+  // Polygon click/tap
+  mapContainer.addEventListener("click", (e) => {
+    const poly = e.target.closest(".neighborhood-poly");
+    if (poly) {
+      const id = poly.getAttribute("data-id");
+      if (selectedNeighborhood === id) {
+        hideTooltip();
+      } else {
+        showTooltipForNeighborhood(id, poly);
+      }
+      e.stopPropagation();
+      return;
+    }
+    // Click outside polygon hides tooltip
+    hideTooltip();
+  });
+
+  // Desktop hover
+  if (!("ontouchstart" in window)) {
+    mapContainer.addEventListener("mouseover", (e) => {
+      const poly = e.target.closest(".neighborhood-poly");
+      if (poly) {
+        const id = poly.getAttribute("data-id");
+        showTooltipForNeighborhood(id, poly);
+      }
+    });
+    mapContainer.addEventListener("mouseout", (e) => {
+      const poly = e.target.closest(".neighborhood-poly");
+      if (poly) {
+        const related = e.relatedTarget;
+        if (!related || !related.closest?.(".neighborhood-poly")) {
+          hideTooltip();
+        }
+      }
+    });
+  }
+
+  // Close tooltip on scroll (mobile)
+  window.addEventListener("scroll", () => {
+    if (selectedNeighborhood) hideTooltip();
+  }, { passive: true });
+
+  // Close tooltip on outside touch
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".map-container") && !e.target.closest(".tooltip") && !e.target.closest(".ranked-card")) {
+      hideTooltip();
+    }
+  });
+}
+
+// ==========================================
+// LOADING / ERROR
+// ==========================================
+
+function showLoading() {
+  document.getElementById("loadingOverlay").classList.remove("hidden");
+  document.getElementById("errorOverlay").classList.add("hidden");
+}
+
+function hideLoading() {
+  document.getElementById("loadingOverlay").classList.add("hidden");
+}
+
+function showError(msg) {
+  hideLoading();
+  document.getElementById("errorMsg").textContent = msg;
+  document.getElementById("errorOverlay").classList.remove("hidden");
+}
+
+// ==========================================
+// INIT
+// ==========================================
+
+async function init() {
+  showLoading();
+
+  // Build and insert SVG
+  const container = document.getElementById("mapContainer");
+  const existingSvg = container.querySelector("svg");
+  if (existingSvg) existingSvg.remove();
+  const svg = buildSVG();
+  container.appendChild(svg);
+
+  // Build legend
+  buildLegend();
+
+  // Setup events
+  setupEvents();
+
+  // Fetch data
+  try {
+    const result = await fetchAllData();
+
+    if (result.failed === result.total) {
+      showError("Could not load weather data for any neighborhood. Check your connection and try again.");
+      return;
+    }
+
+    hideLoading();
+    updateMap();
+    updateRankedList();
+
+    if (result.failed > 0) {
+      console.warn(`${result.failed}/${result.total} neighborhood fetches failed, using fallback scores.`);
+    }
+  } catch (err) {
+    showError("An unexpected error occurred. Please try again.");
+    console.error(err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+
+</body>
+</html>

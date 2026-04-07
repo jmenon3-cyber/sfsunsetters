@@ -85,6 +85,20 @@
       box-shadow: 0 2px 12px rgba(232,88,12,0.3);
     }
 
+    /* ===== SUNSET TIME ===== */
+    .sunset-time {
+      text-align: center;
+      padding: 8px 16px 12px;
+      background: var(--bg-secondary);
+      font-size: 14px;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+    }
+    .sunset-time .time {
+      color: var(--beautiful);
+      font-weight: 700;
+    }
+
     /* ===== MAP CONTAINER ===== */
     .map-section {
       padding: 16px;
@@ -387,6 +401,7 @@
     <button class="day-btn" data-day="1">Tomorrow</button>
     <button class="day-btn" data-day="2">In 2 Days</button>
   </nav>
+  <div class="sunset-time" id="sunsetTime"></div>
 
   <section class="map-section">
     <div class="map-container" id="mapContainer">
@@ -429,7 +444,7 @@ const NEIGHBORHOODS = {
   innerRichmond:  { name: "Inner Richmond",  short: "I. Rich",   lat: 37.7799, lon: -122.4571, polygon: "170,170 310,170 310,283 170,283" },
   nobHill:        { name: "Nob Hill",        short: "Nob Hill",  lat: 37.7930, lon: -122.4161, polygon: "310,170 420,170 420,283 310,283" },
   tenderloin:     { name: "Tenderloin",      short: "TL",        lat: 37.7835, lon: -122.4147, polygon: "420,170 535,170 540,283 420,283" },
-  outerSunset:    { name: "Outer Sunset",    short: "O. Sunset", lat: 37.7502, lon: -122.5076, polygon: "0,297 170,297 170,615 0,615" },
+  sunset:         { name: "Sunset",           short: "Sunset",    lat: 37.7550, lon: -122.5076, polygon: "0,297 170,297 170,500 0,500" },
   haight:         { name: "Haight",          short: "Haight",    lat: 37.7692, lon: -122.4481, polygon: "170,297 310,297 310,375 170,375" },
   hayesValley:    { name: "Hayes Valley",    short: "Hayes V.",  lat: 37.7759, lon: -122.4245, polygon: "310,297 440,297 440,375 310,375" },
   soma:           { name: "SoMa",            short: "SoMa",      lat: 37.7785, lon: -122.3948, polygon: "440,283 540,283 550,375 440,375" },
@@ -437,9 +452,11 @@ const NEIGHBORHOODS = {
   castro:         { name: "Castro",          short: "Castro",    lat: 37.7609, lon: -122.4350, polygon: "310,375 400,375 400,500 310,500" },
   mission:        { name: "Mission",         short: "Mission",   lat: 37.7599, lon: -122.4148, polygon: "400,375 490,375 490,500 400,500" },
   potreroHill:    { name: "Potrero Hill",    short: "Potrero",   lat: 37.7601, lon: -122.4013, polygon: "490,375 550,375 560,500 490,500" },
+  lakeMerced:     { name: "Lake Merced",     short: "Lk Merced", lat: 37.7280, lon: -122.4860, polygon: "0,500 170,500 170,615 0,615" },
   noeValley:      { name: "Noe Valley",      short: "Noe V.",    lat: 37.7502, lon: -122.4338, polygon: "170,500 400,500 400,615 170,615" },
-  bayview:        { name: "Bayview",         short: "Bayview",   lat: 37.7309, lon: -122.3892, polygon: "400,500 560,500 565,635 540,670 500,700 460,718 400,615" },
-  excelsior:      { name: "Excelsior",       short: "Excelsior", lat: 37.7240, lon: -122.4245, polygon: "0,615 400,615 460,718 370,738 300,738 220,728 150,718 90,702 50,668 25,635 0,615" }
+  huntersPoint:   { name: "Hunter's Point",  short: "Hunter's",  lat: 37.7309, lon: -122.3892, polygon: "400,500 560,500 565,635 540,670 500,700 460,718 400,615" },
+  ingleside:      { name: "Ingleside",       short: "Ingleside", lat: 37.7235, lon: -122.4620, polygon: "0,615 200,615 220,728 150,718 90,702 50,668 25,635 0,615" },
+  excelsior:      { name: "Excelsior",       short: "Excelsior", lat: 37.7240, lon: -122.4245, polygon: "200,615 400,615 460,718 370,738 300,738 220,728 200,615" }
 };
 
 const RATINGS = [
@@ -460,6 +477,7 @@ const SF_OUTLINE = "M40,95 Q70,45 200,48 L280,40 L350,38 L420,38 Q455,40 480,58 
 // ==========================================
 
 let weatherCache = {};  // { neighborhoodId: { days: [ {score, rating, raw}, ... ] } }
+let sunsetTimes = [];   // ["7:35 PM", "7:36 PM", "7:36 PM"] from API
 let currentDay = 0;
 let selectedNeighborhood = null;
 
@@ -468,11 +486,28 @@ let selectedNeighborhood = null;
 // ==========================================
 
 function getSunsetHour() {
+  // Fallback if API astronomy data is unavailable
   const month = new Date().getMonth() + 1;
-  if (month >= 11 || month <= 2) return 17; // Winter
-  if (month >= 3 && month <= 5) return 19;  // Spring
-  if (month >= 6 && month <= 8) return 20;  // Summer
-  return 18; // Fall
+  if (month >= 11 || month <= 2) return 17;
+  if (month >= 3 && month <= 5) return 19;
+  if (month >= 6 && month <= 8) return 20;
+  return 18;
+}
+
+function parseSunsetHour(astronomyArr) {
+  if (!astronomyArr?.[0]?.sunset) return null;
+  const match = astronomyArr[0].sunset.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return null;
+  let hour = parseInt(match[1], 10);
+  if (match[3].toUpperCase() === "PM" && hour !== 12) hour += 12;
+  if (match[3].toUpperCase() === "AM" && hour === 12) hour = 0;
+  return hour;
+}
+
+function getSeasonalFogMultiplier() {
+  const month = new Date().getMonth() + 1;
+  const fogByMonth = [0.2, 0.2, 0.4, 0.5, 0.7, 1.0, 1.0, 0.9, 0.7, 0.3, 0.2, 0.2];
+  return fogByMonth[month - 1];
 }
 
 function calculateScore(raw) {
@@ -486,9 +521,9 @@ function calculateScore(raw) {
   const lowPenalty = Math.min(15, raw.cloud_cover_low * 0.3);
   const altScore = Math.max(0, highBonus - lowPenalty + raw.cloud_cover_mid * 0.15);
 
-  // Visibility (max 20 pts) — peaks at 10-15km, drops for very low or very high
-  const visKm = raw.visibility / 1000;
-  const visScore = 20 * Math.max(0, 1 - Math.pow((visKm - 12) / 15, 2));
+  // Visibility (max 20 pts) — peaks at 6-9 mi, drops for very low or very high
+  const visMi = raw.visibility / 1609.34;
+  const visScore = 20 * Math.max(0, 1 - Math.pow((visMi - 7.5) / 9.3, 2));
 
   // Humidity (max 10 pts) — ideal around 50-60%
   const hum = raw.relative_humidity_2m;
@@ -520,7 +555,7 @@ const GEO_FACTORS = {
   innerRichmond:  { fogExposure: 0.55, elevation: 0.30, horizonView: 0.70 },
   nobHill:        { fogExposure: 0.15, elevation: 0.75, horizonView: 0.55 },
   tenderloin:     { fogExposure: 0.05, elevation: 0.05, horizonView: 0.10 },
-  outerSunset:    { fogExposure: 1.0,  elevation: 0.15, horizonView: 1.00 },
+  sunset:         { fogExposure: 1.0,  elevation: 0.15, horizonView: 1.00 },
   haight:         { fogExposure: 0.35, elevation: 0.50, horizonView: 0.45 },
   hayesValley:    { fogExposure: 0.15, elevation: 0.25, horizonView: 0.25 },
   soma:           { fogExposure: 0.05, elevation: 0.05, horizonView: 0.15 },
@@ -528,37 +563,85 @@ const GEO_FACTORS = {
   castro:         { fogExposure: 0.25, elevation: 0.55, horizonView: 0.50 },
   mission:        { fogExposure: 0.05, elevation: 0.20, horizonView: 0.20 },
   potreroHill:    { fogExposure: 0.05, elevation: 0.70, horizonView: 0.65 },
+  lakeMerced:     { fogExposure: 0.80, elevation: 0.10, horizonView: 0.75 },
   noeValley:      { fogExposure: 0.15, elevation: 0.35, horizonView: 0.35 },
-  bayview:        { fogExposure: 0.05, elevation: 0.20, horizonView: 0.25 },
+  huntersPoint:   { fogExposure: 0.05, elevation: 0.15, horizonView: 0.20 },
+  ingleside:      { fogExposure: 0.20, elevation: 0.30, horizonView: 0.30 },
   excelsior:      { fogExposure: 0.15, elevation: 0.25, horizonView: 0.30 }
 };
 
 async function fetchCityWeather() {
-  const resp = await fetch("https://wttr.in/SanFrancisco?format=j1");
+  const resp = await fetch("https://wttr.in/San+Francisco,CA?format=j1");
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   return await resp.json();
 }
 
+function blendEntries(target, prev, fields) {
+  // 60% sunset slot, 40% preceding slot for smoother transitions
+  const result = {};
+  for (const f of fields) {
+    const t = parseInt(target[f], 10) || 0;
+    const p = parseInt(prev[f], 10) || 0;
+    result[f] = Math.round(t * 0.6 + p * 0.4);
+  }
+  return result;
+}
+
 function extractDayData(apiData) {
   const weatherDays = apiData.weather || [];
-  const sunsetHour = getSunsetHour();
-  // wttr.in uses times like 0, 300, 600, 900, 1200, 1500, 1800, 2100
-  // Map sunset hour to nearest wttr.in time slot
-  const targetTime = String(Math.round(sunsetHour / 3) * 300);
-
   const days = [];
+  sunsetTimes = [];
+
   for (const day of weatherDays) {
     const hourly = day.hourly || [];
-    // Find the time slot closest to sunset
-    const entry = hourly.find(h => h.time === targetTime) || hourly[hourly.length - 1];
-    if (entry) {
+    // Capture raw sunset time string from API
+    const rawSunset = day.astronomy?.[0]?.sunset?.trim() || null;
+    sunsetTimes.push(rawSunset);
+
+    // Use actual sunset time from astronomy data, fall back to seasonal estimate
+    const sunsetHour = parseSunsetHour(day.astronomy) || getSunsetHour();
+    const targetTime = String(Math.round(sunsetHour / 3) * 300);
+
+    // Find target slot and preceding slot for blending
+    const targetIdx = hourly.findIndex(h => h.time === targetTime);
+    const idx = targetIdx >= 0 ? targetIdx : hourly.length - 1;
+    const prevIdx = Math.max(0, idx - 1);
+    const target = hourly[idx];
+    const prev = hourly[prevIdx];
+
+    if (target) {
+      const blended = blendEntries(target, prev,
+        ["cloudcover", "visibility", "humidity", "windspeedKmph", "winddirDegree"]);
+      const fogChance = Math.round(
+        parseInt(target.chanceoffog, 10) * 0.6 + parseInt(prev.chanceoffog, 10) * 0.4) || 0;
+      const sunChance = Math.round(
+        parseInt(target.chanceofsunshine, 10) * 0.6 + parseInt(prev.chanceofsunshine, 10) * 0.4) || 0;
+
+      const cc = blended.cloudcover;
+      const vis = blended.visibility;
+
+      // Infer cloud altitude from fog/sunshine/visibility signals
+      const lowFromFog = fogChance * 0.8;
+      const lowFromVis = vis < 5 ? (5 - vis) * 10 : 0;
+      const cloud_cover_low = Math.min(100, Math.round(lowFromFog + lowFromVis));
+
+      const sunFraction = sunChance / 100;
+      const cloud_cover_mid = Math.min(100, Math.round(cc * (1 - sunFraction) * 0.5));
+
+      // High thin clouds: cloudcover present but fog-free with some sunshine
+      const highFromCoverage = cc * sunFraction * 0.8;
+      const highBonus = (cc > 20 && fogChance < 20) ? 15 : 0;
+      const cloud_cover_high = Math.min(100, Math.round(highFromCoverage + highBonus));
+
       days.push({
-        cloud_cover: parseInt(entry.cloudcover, 10) || 0,
-        cloud_cover_low: Math.max(0, (parseInt(entry.cloudcover, 10) || 0) - 20),
-        cloud_cover_mid: Math.min(100, Math.round((parseInt(entry.cloudcover, 10) || 0) * 0.5)),
-        cloud_cover_high: Math.min(100, Math.round((parseInt(entry.cloudcover, 10) || 0) * 0.6)),
-        visibility: (parseInt(entry.visibility, 10) || 10) * 1000,
-        relative_humidity_2m: parseInt(entry.humidity, 10) || 50,
+        cloud_cover: cc,
+        cloud_cover_low,
+        cloud_cover_mid,
+        cloud_cover_high,
+        visibility: vis * 1000,
+        relative_humidity_2m: blended.humidity,
+        wind_speed: blended.windspeedKmph,
+        wind_dir: blended.winddirDegree,
         date: day.date || "N/A"
       });
     }
@@ -566,7 +649,7 @@ function extractDayData(apiData) {
   }
 
   while (days.length < 3) {
-    days.push({ cloud_cover: 50, cloud_cover_low: 10, cloud_cover_mid: 15, cloud_cover_high: 25, visibility: 15000, relative_humidity_2m: 55, date: "N/A" });
+    days.push({ cloud_cover: 50, cloud_cover_low: 10, cloud_cover_mid: 15, cloud_cover_high: 25, visibility: 15000, relative_humidity_2m: 55, wind_speed: 10, wind_dir: 270, date: "N/A" });
   }
 
   return days;
@@ -576,7 +659,19 @@ function adjustRawForNeighborhood(baseRaw, id) {
   const geo = GEO_FACTORS[id] || { fogExposure: 0.3, elevation: 0.3, horizonView: 0.4 };
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-  const fogEffect = geo.fogExposure * 25;
+  // Wind-based fog modifier: westerly winds push marine layer inland
+  const windDir = baseRaw.wind_dir || 270;
+  const windSpeed = baseRaw.wind_speed || 10;
+  const isWesterly = windDir >= 210 && windDir <= 330;
+  const windFogMultiplier = isWesterly
+    ? Math.min(1.5, 1 + windSpeed / 40)
+    : Math.max(0.3, 1 - windSpeed / 50);
+
+  // Seasonal fog: Jun-Aug heavy, Oct-Feb minimal
+  const seasonalFog = getSeasonalFogMultiplier();
+
+  const effectiveFog = geo.fogExposure * seasonalFog * windFogMultiplier;
+  const fogEffect = effectiveFog * 25;
   const elevEffect = geo.elevation * 18;
 
   return {
@@ -584,7 +679,7 @@ function adjustRawForNeighborhood(baseRaw, id) {
     cloud_cover_low: clamp(Math.round(baseRaw.cloud_cover_low + fogEffect * 2 - elevEffect), 0, 100),
     cloud_cover_mid: clamp(Math.round(baseRaw.cloud_cover_mid + fogEffect * 0.3), 0, 100),
     cloud_cover_high: baseRaw.cloud_cover_high,
-    visibility: clamp(Math.round(baseRaw.visibility * (1 - geo.fogExposure * 0.4 + geo.elevation * 0.25)), 1000, 100000),
+    visibility: clamp(Math.round(baseRaw.visibility * (1 - effectiveFog * 0.4 + geo.elevation * 0.25)), 1000, 100000),
     relative_humidity_2m: clamp(Math.round(baseRaw.relative_humidity_2m + fogEffect - elevEffect * 0.4), 0, 100),
     horizon_view: geo.horizonView,
     date: baseRaw.date
@@ -753,10 +848,12 @@ function buildSVG() {
 
     // Adjust centroids for awkward shapes
     const adjustments = {
-      excelsior: { x: 200, y: 670 },
-      bayview: { x: 490, y: 590 },
+      excelsior: { x: 310, y: 680 },
+      ingleside: { x: 100, y: 665 },
+      huntersPoint: { x: 490, y: 590 },
       northBeach: { x: 478, y: 115 },
-      outerSunset: { x: 85, y: 440 }
+      sunset: { x: 85, y: 390 },
+      lakeMerced: { x: 85, y: 555 }
     };
     if (adjustments[id]) {
       c.x = adjustments[id].x;
@@ -788,6 +885,16 @@ function buildSVG() {
 // ==========================================
 // RENDERING
 // ==========================================
+
+function updateSunsetTime() {
+  const el = document.getElementById("sunsetTime");
+  const time = sunsetTimes[currentDay];
+  if (time) {
+    el.innerHTML = `Sunset at <span class="time">${time}</span>`;
+  } else {
+    el.textContent = "";
+  }
+}
 
 function updateMap() {
   const polys = document.querySelectorAll(".neighborhood-poly");
@@ -874,7 +981,7 @@ function showTooltipForNeighborhood(id, anchorEl) {
 
   const tooltip = document.getElementById("tooltip");
   const raw = dayData.raw;
-  const visKm = (raw.visibility / 1000).toFixed(1);
+  const visMi = (raw.visibility / 1609.34).toFixed(1);
 
   tooltip.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -903,7 +1010,7 @@ function showTooltipForNeighborhood(id, anchorEl) {
       </div>
       <div class="tooltip-detail">
         <span class="tooltip-detail-label">Visibility</span>
-        <span class="tooltip-detail-value">${visKm} km</span>
+        <span class="tooltip-detail-value">${visMi} mi</span>
       </div>
       <div class="tooltip-detail">
         <span class="tooltip-detail-label">Humidity</span>
@@ -979,6 +1086,7 @@ function setupEvents() {
       hideTooltip();
       updateMap();
       updateRankedList();
+      updateSunsetTime();
     });
   });
 
@@ -1086,6 +1194,7 @@ async function init() {
     hideLoading();
     updateMap();
     updateRankedList();
+    updateSunsetTime();
 
     if (result.failed > 0) {
       console.warn(`${result.failed}/${result.total} neighborhood fetches failed, using fallback scores.`);

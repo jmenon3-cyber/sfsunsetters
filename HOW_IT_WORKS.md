@@ -2,18 +2,28 @@
 
 ## What This App Does
 
-SF Sunsetters predicts how good the sunset will look from 18 different San Francisco neighborhoods, tonight and over the next two days. Each neighborhood gets a score from 0 to 100 and a rating from "Skip it" to "Spectacular."
+SF Sunsetters predicts how good the sunset will look from 20 different San Francisco neighborhoods, tonight and over the next two days. Each neighborhood gets a score from 0 to 100 and a rating from "Skip it" to "Spectacular."
 
 ## Where the Weather Data Comes From
 
-The app fetches a single weather forecast from [wttr.in](https://wttr.in/) for San Francisco. It pulls the forecast for the hour closest to sunset, which shifts by season:
+The app fetches a single weather forecast from [wttr.in](https://wttr.in/) for San Francisco. It uses the actual sunset time from the API's astronomy data to pick the closest forecast time slot. If astronomy data isn't available, it falls back to a seasonal estimate:
 
 - **Winter** (Nov–Feb): 5:00 PM
 - **Spring** (Mar–May): 7:00 PM
 - **Summer** (Jun–Aug): 8:00 PM
 - **Fall** (Sep–Oct): 6:00 PM
 
-From that forecast, it uses five weather measurements: cloud cover, low cloud cover, mid-level cloud cover, high cloud cover, visibility, and humidity.
+To smooth out sharp weather transitions, the app blends the sunset time slot with the preceding slot (60/40 weighting), giving a better picture of the lead-up conditions.
+
+From that forecast, it derives six weather measurements: cloud cover, low cloud cover, mid-level cloud cover, high cloud cover, visibility, and humidity.
+
+### How Cloud Types Are Inferred
+
+The API doesn't report cloud altitude directly. Instead, the app infers cloud character from related signals:
+
+- **Low clouds** (fog, marine layer): Derived from the chance of fog and low visibility readings. High fog chance + poor visibility = lots of low clouds.
+- **Mid-level clouds**: Estimated from total cloud cover weighted against the chance of sunshine. Overcast with no sunshine suggests thick mid-level clouds.
+- **High clouds** (cirrus, the "good" sunset clouds): Inferred when cloud cover is present but fog chance is low and some sunshine is getting through — thin, high clouds that catch sunset light.
 
 ## How Each Neighborhood Gets a Different Score
 
@@ -23,7 +33,7 @@ San Francisco is small enough that the raw weather data is essentially the same 
 
 How much of the western sky you can actually see. If buildings and hills block your view of the horizon, it doesn't matter how perfect the clouds are.
 
-- **Best:** Outer Sunset (1.0) — directly faces the open Pacific, nothing in the way
+- **Best:** Sunset (1.0) — directly faces the open Pacific, nothing in the way
 - **Best:** Twin Peaks (0.95) and Presidio (0.95) — elevated with panoramic western views
 - **Worst:** Tenderloin (0.10) — surrounded by tall buildings, almost no sky visible
 - **Worst:** SoMa (0.15) — similar situation, hemmed in by downtown
@@ -32,11 +42,19 @@ How much of the western sky you can actually see. If buildings and hills block y
 
 How much the marine layer (Karl the Fog) affects the neighborhood. Fog rolls in from the Pacific, so western neighborhoods get hit first and hardest.
 
-- **Most fog:** Outer Sunset (1.0) — first neighborhood the fog reaches
-- **Heavy fog:** Outer Richmond (0.85) — also right on the coast
+- **Most fog:** Sunset (1.0) — first neighborhood the fog reaches
+- **Heavy fog:** Outer Richmond (0.85), Lake Merced (0.80) — also right on the coast
 - **Least fog:** Tenderloin (0.05), SoMa (0.05), Mission (0.05) — protected by hills and distance from the coast
 
-When fog is present, the app increases low cloud cover and humidity for foggy neighborhoods, and reduces their visibility.
+Fog exposure isn't static — it varies by two additional factors:
+
+#### Seasonal Fog
+
+San Francisco's marine layer is heavily seasonal. The app applies a monthly fog multiplier so western neighborhoods are penalized more during fog season (June–August) and less during clear months (October–February).
+
+#### Wind-Based Fog
+
+Wind direction and speed affect how far inland the fog pushes. Westerly winds (from the ocean, 210°–330°) amplify fog exposure — the stronger the wind, the deeper the fog reaches. Non-westerly winds (especially offshore easterlies) suppress fog, letting coastal neighborhoods score higher.
 
 ### Elevation
 
@@ -64,7 +82,7 @@ High-altitude clouds are the canvas for spectacular sunsets — they catch light
 
 ### Visibility (up to 20 points)
 
-The sweet spot is around 10–15 km. Very low visibility (under 5 km) means haze or fog is washing out colors. Extremely high visibility (crystal-clear air over 25 km) can actually mean there aren't enough particles in the atmosphere to scatter light into warm colors.
+The sweet spot is around 6–9 miles. Very low visibility (under 3 miles) means haze or fog is washing out colors. Extremely high visibility (crystal-clear air over 15 miles) can actually mean there aren't enough particles in the atmosphere to scatter light into warm colors.
 
 ### Humidity (up to 10 points)
 
@@ -86,25 +104,27 @@ A direct bonus based on how much open western sky the neighborhood has. This is 
 
 ## Neighborhood Profiles
 
-The neighborhoods ranked roughly by sunset-watching potential:
+The 20 neighborhoods ranked roughly by sunset-watching potential:
 
-| Neighborhood   | Horizon View | Fog Exposure | Elevation | Best For                           |
-|---------------|-------------|-------------|-----------|-------------------------------------|
-| Outer Sunset   | Full ocean   | Very high    | Low       | Clear days — unbeatable ocean views |
-| Twin Peaks     | Panoramic    | Moderate     | Highest   | Most consistent — above the fog     |
-| Presidio       | Full ocean   | High         | Moderate  | Great when fog stays low            |
-| Outer Richmond | Full ocean   | Very high    | Low       | Similar to Outer Sunset             |
-| Marina         | Good         | Moderate     | Low       | Bay + Golden Gate Bridge views      |
-| Inner Richmond | Good         | Moderate     | Low       | Solid western exposure              |
-| Potrero Hill   | Good         | Very low     | High      | Clear skies, city panorama          |
-| Nob Hill       | Moderate     | Low          | High      | Above downtown, partial western sky |
-| Castro         | Moderate     | Low          | Moderate  | Hilltop streets with western gaps   |
-| Haight         | Moderate     | Low-moderate | Moderate  | Panhandle park views                |
-| Noe Valley     | Limited      | Low          | Moderate  | Valley blocks much of the horizon   |
-| North Beach    | Limited      | Very low     | Low-mod   | Better for bay views than sunsets   |
-| Excelsior      | Limited      | Low          | Low-mod   | Some hilltop spots work             |
-| Bayview        | Limited      | Very low     | Low       | Faces east, not ideal for sunsets   |
-| Hayes Valley   | Limited      | Low          | Low       | Buildings block most of the sky     |
-| Mission        | Limited      | Very low     | Low       | Between hills, limited sky          |
-| SoMa           | Minimal      | Very low     | Flat      | Downtown canyon, almost no horizon  |
-| Tenderloin     | Minimal      | Very low     | Flat      | Dense buildings, no western view    |
+| Neighborhood    | Horizon View | Fog Exposure | Elevation | Best For                           |
+|----------------|-------------|-------------|-----------|-------------------------------------|
+| Sunset          | Full ocean   | Very high    | Low       | Clear days — unbeatable ocean views |
+| Twin Peaks      | Panoramic    | Moderate     | Highest   | Most consistent — above the fog     |
+| Presidio        | Full ocean   | High         | Moderate  | Great when fog stays low            |
+| Outer Richmond  | Full ocean   | Very high    | Low       | Similar to Sunset                   |
+| Marina          | Good         | Moderate     | Low       | Bay + Golden Gate Bridge views      |
+| Lake Merced     | Good         | High         | Low       | Coastal lake with open western sky  |
+| Inner Richmond  | Good         | Moderate     | Low       | Solid western exposure              |
+| Potrero Hill    | Good         | Very low     | High      | Clear skies, city panorama          |
+| Nob Hill        | Moderate     | Low          | High      | Above downtown, partial western sky |
+| Castro          | Moderate     | Low          | Moderate  | Hilltop streets with western gaps   |
+| Haight          | Moderate     | Low-moderate | Moderate  | Panhandle park views                |
+| Noe Valley      | Limited      | Low          | Moderate  | Valley blocks much of the horizon   |
+| North Beach     | Limited      | Very low     | Low-mod   | Better for bay views than sunsets   |
+| Ingleside       | Limited      | Low          | Low-mod   | Some hilltop spots along the ridge  |
+| Excelsior       | Limited      | Low          | Low-mod   | Some hilltop spots work             |
+| Hunter's Point  | Limited      | Very low     | Low       | Faces east, not ideal for sunsets   |
+| Hayes Valley    | Limited      | Low          | Low       | Buildings block most of the sky     |
+| Mission         | Limited      | Very low     | Low       | Between hills, limited sky          |
+| SoMa            | Minimal      | Very low     | Flat      | Downtown canyon, almost no horizon  |
+| Tenderloin      | Minimal      | Very low     | Flat      | Dense buildings, no western view    |

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:datasf.gitbook.io)",
+      "WebFetch(domain:sfstandard.com)",
+      "WebFetch(domain:data.sfgov.org)",
+      "WebFetch(domain:default.sfplanning.org)"
+    ]
+  }
+}

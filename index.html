@@ -437,26 +437,26 @@
 // ==========================================
 
 const NEIGHBORHOODS = {
-  presidio:       { name: "Presidio",        short: "Presidio",  lat: 37.7989, lon: -122.4662, polygon: "40,100 200,55 280,48 280,170 40,170" },
-  marina:         { name: "Marina",          short: "Marina",    lat: 37.8030, lon: -122.4363, polygon: "280,48 420,42 420,170 280,170" },
-  northBeach:     { name: "North Beach",     short: "N. Beach",  lat: 37.8061, lon: -122.4103, polygon: "420,42 450,46 480,62 515,100 535,160 535,170 420,170" },
-  outerRichmond:  { name: "Outer Richmond",  short: "O. Rich",   lat: 37.7780, lon: -122.4883, polygon: "0,170 170,170 170,283 0,283" },
-  innerRichmond:  { name: "Inner Richmond",  short: "I. Rich",   lat: 37.7799, lon: -122.4571, polygon: "170,170 310,170 310,283 170,283" },
-  nobHill:        { name: "Nob Hill",        short: "Nob Hill",  lat: 37.7930, lon: -122.4161, polygon: "310,170 420,170 420,283 310,283" },
-  tenderloin:     { name: "Tenderloin",      short: "TL",        lat: 37.7835, lon: -122.4147, polygon: "420,170 535,170 540,283 420,283" },
-  sunset:         { name: "Sunset",           short: "Sunset",    lat: 37.7550, lon: -122.5076, polygon: "0,297 170,297 170,500 0,500" },
-  haight:         { name: "Haight",          short: "Haight",    lat: 37.7692, lon: -122.4481, polygon: "170,297 310,297 310,375 170,375" },
-  hayesValley:    { name: "Hayes Valley",    short: "Hayes V.",  lat: 37.7759, lon: -122.4245, polygon: "310,297 440,297 440,375 310,375" },
-  soma:           { name: "SoMa",            short: "SoMa",      lat: 37.7785, lon: -122.3948, polygon: "440,283 540,283 550,375 440,375" },
-  twinPeaks:      { name: "Twin Peaks",      short: "Twin Pks",  lat: 37.7544, lon: -122.4477, polygon: "170,375 310,375 310,500 170,500" },
-  castro:         { name: "Castro",          short: "Castro",    lat: 37.7609, lon: -122.4350, polygon: "310,375 400,375 400,500 310,500" },
-  mission:        { name: "Mission",         short: "Mission",   lat: 37.7599, lon: -122.4148, polygon: "400,375 490,375 490,500 400,500" },
-  potreroHill:    { name: "Potrero Hill",    short: "Potrero",   lat: 37.7601, lon: -122.4013, polygon: "490,375 550,375 560,500 490,500" },
-  lakeMerced:     { name: "Lake Merced",     short: "Lk Merced", lat: 37.7280, lon: -122.4860, polygon: "0,500 170,500 170,615 0,615" },
-  noeValley:      { name: "Noe Valley",      short: "Noe V.",    lat: 37.7502, lon: -122.4338, polygon: "170,500 400,500 400,615 170,615" },
-  huntersPoint:   { name: "Hunter's Point",  short: "Hunter's",  lat: 37.7309, lon: -122.3892, polygon: "400,500 560,500 565,635 540,670 500,700 460,718 400,615" },
-  ingleside:      { name: "Ingleside",       short: "Ingleside", lat: 37.7235, lon: -122.4620, polygon: "0,615 200,615 220,728 150,718 90,702 50,668 25,635 0,615" },
-  excelsior:      { name: "Excelsior",       short: "Excelsior", lat: 37.7240, lon: -122.4245, polygon: "200,615 400,615 460,718 370,738 300,738 220,728 200,615" }
+  presidio:       { name: "Presidio",        short: "Presidio",  lat: 37.7989, lon: -122.4662, centroid: {x: 195.8, y: 201.4}, path: "M260.0,237.1L259.5,269.6L218.7,274.7L217.5,249.7L205.6,239.9L150.0,249.6L121.8,233.4L153.4,142.0L202.1,169.4L257.4,160.1L260.0,237.1Z" },
+  marina:         { name: "Marina",          short: "Marina",    lat: 37.8030, lon: -122.4363, centroid: {x: 300.0, y: 200.8}, path: "M260.0,237.1L257.4,160.1L285.6,151.8L261.6,167.0L308.2,154.7L300.4,156.9L308.5,166.2L315.0,150.9L330.7,152.0L348.3,234.1L261.5,247.9L260.0,237.1Z" },
+  northBeach:     { name: "North Beach",     short: "N. Beach",  lat: 37.8061, lon: -122.4103, centroid: {x: 393.6, y: 168.3}, path: "M389.8,147.8L424.2,157.1L424.0,175.2L443.6,186.0L403.7,200.7L354.4,161.4L353.9,150.7L354.9,154.1L370.2,153.1L355.3,139.9L389.8,147.8Z" },
+  outerRichmond:  { name: "Outer Richmond",  short: "O. Rich",   lat: 37.7780, lon: -122.4883, centroid: {x: 86.9, y: 293.5}, path: "M151.6,311.9L26.5,319.3L20.8,275.1L51.5,243.7L96.2,246.2L121.8,233.4L148.4,249.5L151.6,311.9Z" },
+  innerRichmond:  { name: "Inner Richmond",  short: "I. Rich",   lat: 37.7799, lon: -122.4571, centroid: {x: 205.9, y: 286.8}, path: "M262.8,298.9L151.6,311.9L148.4,249.5L205.6,239.9L217.5,249.7L218.7,274.7L259.5,269.6L262.8,298.9Z" },
+  nobHill:        { name: "Nob Hill",        short: "Nob Hill",  lat: 37.7930, lon: -122.4161, centroid: {x: 361.3, y: 179.7}, path: "M349.6,242.4L332.4,154.9L333.4,147.1L335.5,144.5L338.4,143.1L336.1,159.5L352.8,153.0L346.5,145.4L408.2,200.0L413.1,232.2L349.6,242.4Z" },
+  tenderloin:     { name: "Tenderloin",      short: "TL",        lat: 37.7835, lon: -122.4147, centroid: {x: 358.8, y: 288.4}, path: "M395.9,235.1L406.7,254.9L348.7,311.8L341.3,265.0L353.0,263.0L349.6,242.4L395.9,235.1Z" },
+  sunset:         { name: "Sunset",           short: "Sunset",    lat: 37.7550, lon: -122.5076, centroid: {x: 113.7, y: 412.7}, path: "M177.2,468.4L107.3,467.6L104.0,485.0L42.7,479.0L28.7,352.1L239.5,340.9L245.3,375.8L226.0,407.5L191.3,401.2L192.4,417.8L177.5,426.9L177.2,468.4Z" },
+  haight:         { name: "Haight",          short: "Haight",    lat: 37.7692, lon: -122.4481, centroid: {x: 257.0, y: 351.9}, path: "M300.0,329.0L245.1,374.9L233.6,303.8L291.9,294.1L300.0,329.0Z" },
+  hayesValley:    { name: "Hayes Valley",    short: "Hayes V.",  lat: 37.7759, lon: -122.4245, centroid: {x: 303.0, y: 279.5}, path: "M348.7,311.8L334.1,326.5L300.0,329.0L291.9,294.1L262.8,298.9L261.5,247.9L348.3,234.1L353.0,263.0L341.3,265.0L348.7,311.8Z" },
+  soma:           { name: "SoMa",            short: "SoMa",      lat: 37.7785, lon: -122.3948, centroid: {x: 438.6, y: 261.1}, path: "M472.1,278.0L481.3,276.8L471.7,278.1L481.4,278.8L472.2,284.9L481.4,283.9L481.5,284.7L461.5,292.9L491.9,304.2L493.2,316.2L474.4,310.1L489.7,335.0L409.7,342.7L402.5,329.6L345.0,315.5L406.7,254.9L408.2,200.0L447.5,190.4L439.6,197.1L449.4,195.8L443.4,202.4L451.6,198.9L445.9,205.8L457.3,208.0L469.1,235.6L478.8,233.2L472.1,247.9L482.9,254.7L470.8,267.4L481.8,268.8L470.9,272.2L481.0,272.0L471.3,273.7L471.5,275.9L481.2,274.6L481.3,275.8L472.1,278.0Z" },
+  twinPeaks:      { name: "Twin Peaks",      short: "Twin Pks",  lat: 37.7544, lon: -122.4477, centroid: {x: 236.3, y: 441.5}, path: "M225.6,529.5L173.3,498.2L182.8,467.5L177.5,426.9L192.4,417.8L191.3,401.2L228.2,406.2L235.7,381.4L262.8,364.6L282.2,386.2L269.2,428.4L283.5,426.2L301.5,454.6L285.1,466.4L286.2,481.2L237.9,487.8L241.3,533.3L225.6,529.5Z" },
+  castro:         { name: "Castro",          short: "Castro",    lat: 37.7609, lon: -122.4350, centroid: {x: 305.6, y: 347.0}, path: "M262.8,364.6L291.4,329.4L332.6,326.6L336.8,384.3L289.6,389.5L262.8,364.6Z" },
+  mission:        { name: "Mission",         short: "Mission",   lat: 37.7599, lon: -122.4148, centroid: {x: 374.0, y: 375.3}, path: "M339.7,423.4L332.6,326.6L345.0,315.5L408.7,334.0L414.8,416.5L339.7,423.4Z" },
+  potreroHill:    { name: "Potrero Hill",    short: "Potrero",   lat: 37.7601, lon: -122.4013, centroid: {x: 454.6, y: 379.5}, path: "M498.5,404.6L414.8,416.5L409.7,342.7L488.2,337.5L472.6,353.2L490.2,358.7L490.0,348.7L492.2,358.5L494.2,347.3L494.7,359.3L486.6,360.0L494.3,368.5L500.0,353.8L495.7,390.4L483.8,391.9L498.5,404.6Z" },
+  lakeMerced:     { name: "Lake Merced",     short: "Lk Merced", lat: 37.7280, lon: -122.4860, centroid: {x: 115.6, y: 542.5}, path: "M175.6,599.9L63.2,600.4L42.7,479.0L104.0,485.0L107.3,467.6L180.6,464.8L175.6,599.9Z" },
+  noeValley:      { name: "Noe Valley",      short: "Noe V.",    lat: 37.7502, lon: -122.4338, centroid: {x: 349.7, y: 437.8}, path: "M291.3,483.5L285.1,466.4L296.6,465.6L300.1,448.0L283.5,426.2L268.8,427.5L282.0,386.0L336.8,384.3L339.7,423.4L414.8,416.5L399.1,459.9L403.7,479.8L346.0,496.3L301.4,495.0L312.3,488.6L291.3,483.5Z" },
+  huntersPoint:   { name: "Hunter's Point",  short: "Hunter's",  lat: 37.7309, lon: -122.3892, centroid: {x: 486.3, y: 499.1}, path: "M469.6,423.6L452.0,422.1L461.2,428.5L514.2,427.0L542.2,457.7L519.7,460.3L543.0,466.1L529.3,471.4L511.2,465.7L514.0,490.8L550.6,485.9L547.3,494.3L573.5,503.8L561.2,509.5L580.0,508.6L563.4,524.1L576.9,526.8L550.4,522.7L572.3,550.3L556.3,551.6L574.3,565.7L555.5,562.0L569.1,572.8L550.7,568.3L565.4,579.2L565.1,579.7L519.6,552.2L508.7,528.5L495.6,539.6L475.5,527.5L512.1,564.8L498.2,589.2L518.3,597.8L445.2,599.0L399.1,459.9L414.8,416.5L512.2,403.8L513.3,419.5L469.6,423.6Z" },
+  ingleside:      { name: "Ingleside",       short: "Ingleside", lat: 37.7235, lon: -122.4620, centroid: {x: 384.9, y: 564.5}, path: "M428.6,599.1L353.6,599.3L308.8,577.4L317.3,562.4L334.9,566.6L336.4,546.4L423.6,528.2L445.2,599.0L428.6,599.1Z" },
+  excelsior:      { name: "Excelsior",       short: "Excelsior", lat: 37.7240, lon: -122.4245, centroid: {x: 312.6, y: 538.7}, path: "M342.8,599.3L217.9,599.9L262.3,544.1L241.3,533.3L237.9,487.8L279.5,476.6L312.3,488.6L301.4,495.0L346.0,496.3L405.3,481.4L423.6,528.2L336.4,546.4L334.9,566.6L311.7,570.2L353.6,599.3L342.8,599.3Z" }
 };
 
 const RATINGS = [
@@ -469,8 +469,11 @@ const RATINGS = [
 
 const DAY_LABELS = ["Tonight", "Tomorrow", "In 2 Days"];
 
-// Peninsula outline clip path
-const SF_OUTLINE = "M40,95 Q70,45 200,48 L280,40 L350,38 L420,38 Q455,40 480,58 Q512,88 535,155 L538,185 L540,240 L542,265 L544,283 L548,330 L552,375 L556,420 L560,470 L562,510 L565,560 L566,610 L565,640 Q560,670 540,698 Q520,720 495,732 L450,740 Q380,745 300,742 L230,735 L165,722 Q115,710 80,690 Q48,665 30,630 Q15,580 8,520 L6,450 L6,380 L8,320 L10,290 Q15,235 30,190 Q38,155 40,95 Z";
+// Peninsula outline clip path (generated from real GeoJSON data)
+const SF_OUTLINE = "M206.8,600.0L63.2,600.4L20.8,275.1L51.5,243.7L118.6,237.4L152.1,142.3L202.1,169.4L285.6,151.8L261.6,167.0L308.2,154.7L300.4,156.9L308.5,166.2L311.9,153.2L332.3,155.0L333.6,146.7L336.0,144.1L339.3,143.0L338.9,161.1L352.8,153.0L346.5,145.4L354.9,154.1L369.5,154.3L354.5,140.9L356.9,139.6L373.0,150.3L386.7,141.1L382.5,144.1L387.6,151.4L390.1,151.8L387.6,141.6L391.5,139.9L397.3,140.9L394.2,152.3L424.2,157.1L424.0,175.2L443.6,185.9L437.8,194.7L447.5,190.4L439.6,197.1L449.4,195.8L443.4,202.4L451.6,198.9L445.9,205.8L457.3,208.0L469.1,235.6L478.8,233.2L472.1,247.9L482.9,254.7L470.8,267.4L481.8,268.8L470.7,270.0L481.1,272.2L472.2,284.9L481.4,283.9L481.5,284.7L461.5,292.9L491.9,304.2L493.2,316.2L474.4,310.1L489.7,335.0L472.6,353.2L490.2,358.7L490.0,348.7L492.2,358.5L494.2,347.3L494.7,359.3L486.6,360.0L494.3,368.5L500.0,353.8L495.7,390.4L483.9,393.0L512.2,403.8L513.3,419.5L452.3,424.5L524.0,433.8L542.2,457.7L521.0,463.6L543.0,466.3L511.4,465.4L513.6,490.0L550.6,485.9L547.3,494.3L573.5,503.8L561.2,509.5L578.2,506.2L563.4,524.1L576.9,526.8L550.4,522.8L572.3,550.5L556.3,551.6L574.3,565.7L559.9,556.2L569.1,572.8L550.8,568.1L550.8,568.9L565.4,579.2L565.1,579.7L519.6,552.2L508.7,528.5L495.6,539.6L475.7,527.4L512.1,564.8L498.2,589.2L518.0,598.1L206.8,600.0Z";
+
+// Golden Gate Park boundary (generated from real GeoJSON data)
+const GGP_PATH = "M233.6,303.8L239.5,340.9L27.7,349.8L26.5,319.3L233.6,303.8Z";
 
 // ==========================================
 // STATE
@@ -720,19 +723,9 @@ async function fetchAllData() {
 // SVG MAP
 // ==========================================
 
-function getPolygonCentroid(pointsStr) {
-  const pts = pointsStr.trim().split(/\s+/).map(p => {
-    const [x, y] = p.split(",").map(Number);
-    return { x, y };
-  });
-  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-  const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-  return { x: cx, y: cy };
-}
-
 function buildSVG() {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 30 580 730");
+  svg.setAttribute("viewBox", "0 0 600 740");
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
   // Defs: clip path + drop shadow
@@ -782,9 +775,9 @@ function buildSVG() {
   // Water background
   const water = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   water.setAttribute("x", "0");
-  water.setAttribute("y", "30");
-  water.setAttribute("width", "580");
-  water.setAttribute("height", "730");
+  water.setAttribute("y", "0");
+  water.setAttribute("width", "600");
+  water.setAttribute("height", "740");
   water.classList.add("water-fill");
   svg.appendChild(water);
 
@@ -794,8 +787,8 @@ function buildSVG() {
 
   // Draw neighborhoods
   for (const [id, n] of Object.entries(NEIGHBORHOODS)) {
-    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    poly.setAttribute("points", n.polygon);
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    poly.setAttribute("d", n.path);
     poly.setAttribute("data-id", id);
     poly.classList.add("neighborhood-poly");
     poly.setAttribute("fill", "#555E3B"); // default
@@ -804,29 +797,26 @@ function buildSVG() {
 
   svg.appendChild(clipGroup);
 
-  // Golden Gate Park strip
-  const ggp = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  ggp.setAttribute("x", "0");
-  ggp.setAttribute("y", "283");
-  ggp.setAttribute("width", "310");
-  ggp.setAttribute("height", "14");
+  // Golden Gate Park (real boundary)
+  const ggp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  ggp.setAttribute("d", GGP_PATH);
   ggp.classList.add("park-strip");
   ggp.setAttribute("clip-path", "url(#sf-outline)");
   svg.appendChild(ggp);
 
   const ggpLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  ggpLabel.setAttribute("x", "155");
-  ggpLabel.setAttribute("y", "294");
+  ggpLabel.setAttribute("x", "132.4");
+  ggpLabel.setAttribute("y", "330.1");
   ggpLabel.classList.add("park-label");
   ggpLabel.textContent = "GOLDEN GATE PARK";
   svg.appendChild(ggpLabel);
 
   // Golden Gate Bridge indicator
   const bridge = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  bridge.setAttribute("x1", "35");
-  bridge.setAttribute("y1", "85");
-  bridge.setAttribute("x2", "80");
-  bridge.setAttribute("y2", "55");
+  bridge.setAttribute("x1", "163.4");
+  bridge.setAttribute("y1", "155.5");
+  bridge.setAttribute("x2", "150.3");
+  bridge.setAttribute("y2", "46.4");
   bridge.classList.add("bridge-line");
   svg.appendChild(bridge);
 
@@ -844,21 +834,7 @@ function buildSVG() {
   labelsGroup.setAttribute("filter", "url(#text-shadow)");
 
   for (const [id, n] of Object.entries(NEIGHBORHOODS)) {
-    const c = getPolygonCentroid(n.polygon);
-
-    // Adjust centroids for awkward shapes
-    const adjustments = {
-      excelsior: { x: 310, y: 680 },
-      ingleside: { x: 100, y: 665 },
-      huntersPoint: { x: 490, y: 590 },
-      northBeach: { x: 478, y: 115 },
-      sunset: { x: 85, y: 390 },
-      lakeMerced: { x: 85, y: 555 }
-    };
-    if (adjustments[id]) {
-      c.x = adjustments[id].x;
-      c.y = adjustments[id].y;
-    }
+    const c = { x: n.centroid.x, y: n.centroid.y };
 
     const nameEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
     nameEl.setAttribute("x", c.x);

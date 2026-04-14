@@ -215,6 +215,7 @@
     .tooltip-detail {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       font-size: 12px;
     }
     .tooltip-detail-label { color: var(--text-secondary); }
@@ -517,7 +518,7 @@ function parseSunsetHour(astronomyArr) {
 
 function getSeasonalFogMultiplier() {
   const month = new Date().getMonth() + 1;
-  const fogByMonth = [0.2, 0.2, 0.4, 0.5, 0.7, 1.0, 1.0, 0.9, 0.7, 0.3, 0.2, 0.2];
+  const fogByMonth = [0.3, 0.3, 0.5, 0.6, 0.8, 1.0, 1.0, 0.9, 0.7, 0.4, 0.3, 0.3];
   return fogByMonth[month - 1];
 }
 
@@ -529,21 +530,24 @@ function calculateScore(raw) {
 
   // Cloud altitude (max 25 pts) — high clouds are best, low clouds worst
   const highBonus = Math.min(25, raw.cloud_cover_high * 0.8);
-  const lowPenalty = Math.min(15, raw.cloud_cover_low * 0.3);
+  const lowPenalty = Math.min(20, raw.cloud_cover_low * 0.5);
   const altScore = Math.max(0, highBonus - lowPenalty + raw.cloud_cover_mid * 0.15);
+
+  // Low cloud penalty — heavy fog/marine layer tanks the score beyond altitude
+  const lowCloudPenalty = Math.min(15, Math.max(0, raw.cloud_cover_low - 40) * 0.25);
 
   // Visibility (max 20 pts) — peaks at 6-9 mi, drops for very low or very high
   const visMi = raw.visibility / 1609.34;
   const visScore = 20 * Math.max(0, 1 - Math.pow((visMi - 7.5) / 9.3, 2));
 
-  // Humidity (max 10 pts) — ideal around 50-60%
+  // Humidity (max 5 pts) — ideal around 50-60%
   const hum = raw.relative_humidity_2m;
-  const humScore = 10 * Math.max(0, 1 - Math.pow((hum - 55) / 45, 2));
+  const humScore = 5 * Math.max(0, 1 - Math.pow((hum - 55) / 45, 2));
 
-  // Horizon view bonus (max 10 pts) — from geographic factors
-  const horizonScore = (raw.horizon_view || 0) * 10;
+  // Horizon view bonus (max 15 pts) — from geographic factors
+  const horizonScore = (raw.horizon_view || 0) * 15;
 
-  const total = ccScore + Math.min(25, altScore) + visScore + humScore + horizonScore;
+  const total = ccScore + Math.min(25, altScore) + visScore + humScore + horizonScore - lowCloudPenalty;
   return Math.round(Math.min(100, Math.max(0, total)));
 }
 
@@ -682,8 +686,8 @@ function adjustRawForNeighborhood(baseRaw, id) {
   const seasonalFog = getSeasonalFogMultiplier();
 
   const effectiveFog = geo.fogExposure * seasonalFog * windFogMultiplier;
-  const fogEffect = effectiveFog * 25;
-  const elevEffect = geo.elevation * 18;
+  const fogEffect = effectiveFog * 35;
+  const elevEffect = geo.elevation * 25;
 
   return {
     cloud_cover: clamp(Math.round(baseRaw.cloud_cover + fogEffect - elevEffect * 0.5), 0, 100),

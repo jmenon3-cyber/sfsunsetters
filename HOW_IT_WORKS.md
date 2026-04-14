@@ -84,13 +84,13 @@ High-altitude clouds are the canvas for spectacular sunsets — they catch light
 
 The sweet spot is around 6–9 miles. Very low visibility (under 3 miles) means haze or fog is washing out colors. Extremely high visibility (crystal-clear air over 15 miles) can actually mean there aren't enough particles in the atmosphere to scatter light into warm colors.
 
-### Humidity (up to 10 points)
+### Humidity (up to 5 points)
 
 Moderate humidity (around 50–60%) is ideal. Some moisture in the air helps scatter light into warm sunset tones. Too dry and the colors are flat; too humid and haze takes over.
 
-### Horizon View (up to 10 points)
+### Horizon View (up to 15 points)
 
-A direct bonus based on how much open western sky the neighborhood has. This is the geographic factor described above — it doesn't change with the weather but has a big impact on whether you can actually *see* the sunset.
+A direct bonus based on how much open western sky the neighborhood has. This is the geographic factor described above — it doesn't change with the weather but has a big impact on whether you can actually *see* the sunset. This is the largest source of neighborhood differentiation, ensuring coastal and hilltop areas consistently outscore downtown canyons.
 
 ## Rating Scale
 
